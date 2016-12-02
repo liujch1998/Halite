@@ -9,18 +9,20 @@
 #include "hlt.hpp"
 #include "networking.hpp"
 
-int main() {
-    srand(time(NULL));
+int main ()
+{
+    srand (time (NULL));
 
     std::cout.sync_with_stdio(0);
 
     unsigned char myID;
     hlt::GameMap presentMap;
     getInit(myID, presentMap);
-    sendInit("MyC++Bot");
+    sendInit("闷声大发财");
 
-    std::set<hlt::Move> moves;
-    while(true) {
+    std::set<hlt::Move> moves; // struct for returned move info
+    while(true)
+	{
         moves.clear();
 
         getFrame(presentMap);
