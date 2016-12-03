@@ -16,7 +16,7 @@ float compute_force (hlt::Site site, float dist, int myArea)
 	float force;
 	float production = (float) site.production;
 	float strength = (float) site.strength;
-	if (myArea > 16)
+	if (myArea > 8)
 		force = production / (dist * dist);
 	else
 		force = (1.0f / strength) / (dist * dist);
@@ -99,7 +99,21 @@ int main ()
 				}
 			}
 		}
-
+	/*	if (moveList.empty ())
+		{
+        	for (unsigned short a = 0; a < currMap.height; a++)
+            	for (unsigned short b = 0; b < currMap.width; b++)
+                	if (currMap.getSite ({b, a}).owner == myID)
+					{
+						unsigned char direction = STILL;
+						if (currMap.getSite ({b, a},  EAST).owner == myID) direction =  EAST;
+						if (currMap.getSite ({b, a}, SOUTH).owner == myID) direction = SOUTH;
+						if (currMap.getSite ({b, a},  WEST).owner == myID) direction =  WEST;
+						if (currMap.getSite ({b, a}, NORTH).owner == myID) direction = NORTH;
+						moveList.insert ({{b, a}, direction});
+					}
+		}
+	*/
 		sendFrame (moveList);
 	}
 
