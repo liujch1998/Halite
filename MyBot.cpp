@@ -54,20 +54,22 @@ int main ()
 					for (std::set<hlt::Location>::iterator it = boarders.begin (); it != boarders.end (); it ++)
 					{
 						float  dist = presentMap.getDistance ({b, a}, *it);
-						log << "dist is " << dist << std::endl;
+					//	log << "dist is " << dist << std::endl;
 						float angle = presentMap.getAngle    ({b, a}, *it);
-						float force = (float) presentMap.getSite (*it, STILL).production / (dist * dist);
+					//	float force = /*(float) presentMap.getSite (*it, STILL).production*/ 1.0 /*/ (float) presentMap.getSite (*it, STILL).production*/ / (dist * dist);
+					//	float force = /*(float) presentMap.getSite (*it, STILL).production*/ 1.0 / (float) presentMap.getSite (*it, STILL).production / (dist * dist);
+						float force = (float) presentMap.getSite (*it, STILL).production /* (float) presentMap.getSite (*it, STILL).production*/ / (dist * dist * dist);
 						force_x += force * cos (angle);
 						force_y += force * sin (angle);
 					}
-					log << force_x << ' ' << force_y << std::endl;
-					if (presentMap.getSite ({b, a}, STILL).strength < 16) continue;
+				//	log << force_x << ' ' << force_y << std::endl;
+				//	if (presentMap.getSite ({b, a}, STILL).strength < 16) continue;
 					unsigned char direction = STILL;
 					if (force_x + force_y > 0 && force_x - force_y > 0) direction = EAST;
 					if (force_x + force_y > 0 && force_x - force_y < 0) direction = SOUTH;
 					if (force_x + force_y < 0 && force_x - force_y < 0) direction = WEST;
 					if (force_x + force_y < 0 && force_x - force_y > 0) direction = NORTH;
-					if (presentMap.getSite ({b, a}, direction).strength >= presentMap.getSite ({b, a}).strength) continue;
+					if (presentMap.getSite ({b, a}, direction).owner != myID && presentMap.getSite ({b, a}, direction).strength >= presentMap.getSite ({b, a}).strength) continue;
 
 					moves.insert ({{b, a}, direction});
 				}
