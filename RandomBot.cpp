@@ -16,10 +16,11 @@ float compute_force (hlt::Site site, float dist, int myArea)
 	float force;
 	float production = (float) site.production;
 	float strength = (float) site.strength;
-	if (myArea > 8)
-		force = production / (dist * dist);
-	else
-		force = (1.0f / strength) / (dist * dist);
+//	if (myArea > 8)
+//		force = production / (dist * dist);
+//	else
+//		force = (1.0f / strength) / (dist * dist);
+	force = (strength ? (production / strength) : production) / (dist * dist);
 	return force;
 }
 
