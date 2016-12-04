@@ -16,10 +16,11 @@ float compute_force (hlt::Site site, float dist, int myArea)
 	float force;
 	float production = (float) site.production;
 	float strength = (float) site.strength;
-	if (myArea > 8)
-		force = production / (dist * dist);
-	else
-		force = (1.0f / strength) / (dist * dist);
+//	if (myArea > 8)
+//		force = production / (dist * dist);
+//	else
+//		force = (1.0f / strength) / (dist * dist);
+	force = (strength ? (production / strength) : production) / (dist * dist);
 	return force;
 }
 
@@ -36,6 +37,7 @@ int main ()
 	sendInit ("Since 08/17/1926");
 
 	int clock;
+	std::map<hlt::Move, bool> prevMap;
 	for (clock = 0; ; clock ++)
 	{
 		moveList.clear ();
@@ -92,7 +94,8 @@ int main ()
 						else continue; // avoid death move
 					}
 					hlt::Move revMove = {currMap.getLocation ({b, a}, direction), (unsigned char) ((direction + 1) & 0x3 + 1)};
-					if (myArea <= 16 && moveMap[revMove] == 1) continue;
+					if (myArea <= 16 && moveMap[revMove] == 1) continue; // avoid double oscillation
+					if (myArea <= 16 && prevMap[revMove] == 1) direction = (direction + 1) & 0x3 + 1; // avoid single oscillation
 					hlt::Move move = {{b, a}, direction};
 					moveList.insert (move);
 					moveMap[move] = 1;
@@ -114,6 +117,7 @@ int main ()
 					}
 		}
 	*/
+		prevMap = moveMap;
 		sendFrame (moveList);
 	}
 

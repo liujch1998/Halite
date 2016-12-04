@@ -6,6 +6,7 @@
 #include <set>
 #include <fstream>
 #include <cmath>
+#include <map>
 
 #include "hlt.hpp"
 #include "networking.hpp"
@@ -15,7 +16,7 @@ float compute_force (hlt::Site site, float dist, int myArea)
 	float force;
 	float production = (float) site.production;
 	float strength = (float) site.strength;
-	if (myArea > 16)
+	if (myArea > 8)
 		force = production / (dist * dist);
 	else
 		force = (1.0f / strength) / (dist * dist);
@@ -35,12 +36,14 @@ int main ()
 	sendInit ("Since 08/17/1926");
 
 	int clock;
+	std::map<hlt::Move, bool> prevMap;
 	for (clock = 0; ; clock ++)
 	{
 		moveList.clear ();
 		getFrame (currMap);
 
 		std::set<hlt::Location> boarders;
+		std::map<hlt::Move, bool> moveMap;
 		int myArea = 0;
 		for (unsigned short a = 0; a < currMap.height; a ++)
 		{
@@ -84,16 +87,36 @@ int main ()
 					if (myArea <= 16 && currSite.strength <= 8 || myArea > 16 && currSite.strength <= 16) continue; // let small pieces be resting ans growing
 					if (nextSite.owner != myID && currSite.strength <= nextSite.strength)
 					{
-							 if (clock < 8 && currMap.getSite ({b, a}, (direction + 0) & 0x3 + 1).owner == myID) fout << "combined!" << std::endl;
+						// change direction to merge and attack
 							 if (currMap.getSite ({b, a}, (direction + 0) & 0x3 + 1).owner == myID) direction = (direction + 0) & 0x3 + 1;
 						else if (currMap.getSite ({b, a}, (direction + 2) & 0x3 + 1).owner == myID) direction = (direction + 2) & 0x3 + 1;
 						else continue; // avoid death move
 					}
-					moveList.insert ({{b, a}, direction});
+					hlt::Move revMove = {currMap.getLocation ({b, a}, direction), (unsigned char) ((direction + 1) & 0x3 + 1)};
+					if (myArea <= 16 && moveMap[revMove] == 1) continue; // avoid double oscillation
+					if (myArea <= 16 && prevMap[revMove] == 1) direction = (direction + 1) & 0x3 + 1; // avoid single oscillation
+					hlt::Move move = {{b, a}, direction};
+					moveList.insert (move);
+					moveMap[move] = 1;
 				}
 			}
 		}
-
+	/*	if (moveList.empty ())
+		{
+        	for (unsigned short a = 0; a < currMap.height; a++)
+            	for (unsigned short b = 0; b < currMap.width; b++)
+                	if (currMap.getSite ({b, a}).owner == myID)
+					{
+						unsigned char direction = STILL;
+						if (currMap.getSite ({b, a},  EAST).owner == myID) direction =  EAST;
+						if (currMap.getSite ({b, a}, SOUTH).owner == myID) direction = SOUTH;
+						if (currMap.getSite ({b, a},  WEST).owner == myID) direction =  WEST;
+						if (currMap.getSite ({b, a}, NORTH).owner == myID) direction = NORTH;
+						moveList.insert ({{b, a}, direction});
+					}
+		}
+	*/
+		prevMap = moveMap;
 		sendFrame (moveList);
 	}
 
